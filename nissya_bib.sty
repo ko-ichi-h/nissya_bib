@@ -1,0 +1,555 @@
+\NeedsTeXFormat{LaTeX2e}[1995/06/01]
+\ProvidesPackage{nissya_bib}
+        [1999/05/28 7.0 (PWD)]
+
+% The author-year modifications of the standard styles
+\newcommand\bibstyle@plainnat{\bibpunct{[}{]}{,}{a}{,}{,}}
+\newif\ifNAT@numbers \NAT@numbersfalse
+\newif\ifNAT@super \NAT@superfalse
+
+% オプションの取得・確認
+\newif\ifNAT@openbib \NAT@openbibfalse
+\def\NAT@sort{0}
+\newif\ifNAT@longnames\NAT@longnamesfalse
+\NAT@longnamestrue                              % longnamesfirstを強制的に適用
+\newif\ifNAT@noinitial\NAT@noinitialfalse       % noinitialオプション追加
+\DeclareOption{long}{\NAT@noinitialtrue}
+\def\NAT@nmfmt#1{{\NAT@up#1}}
+\renewcommand\bibstyle[1]{\@ifundefined{bibstyle@#1}{\relax}
+     {\csname bibstyle@#1\endcsname}}
+\AtBeginDocument{\global\let\bibstyle=\@gobble}
+\let\@citestyle\bibstyle
+\newcommand\citestyle[1]{\@citestyle{#1}\let\bibstyle\@gobble}
+\@onlypreamble{\citestyle}\@onlypreamble{\@citestyle}
+\newcommand\bibpunct[7][, ]%
+  {\gdef\NAT@open{#2}\gdef\NAT@close{#3}\gdef
+   \NAT@sep{#4}\global\NAT@numbersfalse\ifx #5n\global\NAT@numberstrue
+   \else
+   \ifx #5s\global\NAT@numberstrue\global\NAT@supertrue
+   \fi\fi
+   \gdef\NAT@aysep{#6}\gdef\NAT@yrsep{#7}%
+   \gdef\NAT@cmt{#1}%
+   \global\let\bibstyle\@gobble
+  }
+\@onlypreamble{\bibpunct}
+\newcommand\NAT@open{(} \newcommand\NAT@close{)}
+\newcommand\NAT@sep{;}
+\ProcessOptions
+\newcommand\NAT@aysep{,} \newcommand\NAT@yrsep{,}
+\newcommand\NAT@cmt{, }
+\newcommand\NAT@cite%
+    [3]{\ifNAT@swa\NAT@@open\if*#2*\else#2\ \fi
+        #1\if*#3*\else\NAT@cmt#3\fi\NAT@@close\else#1\fi\endgroup}
+\newcommand\NAT@citenum%
+    [3]{\ifNAT@swa\NAT@@open\if*#2*\else#2\ \fi
+        #1\if*#3*\else\NAT@cmt#3\fi\NAT@@close\else#1\fi\endgroup}
+\newcommand\NAT@citesuper[3]{\ifNAT@swa
+\unskip\hspace{1\p@}\textsuperscript{#1}%
+   \if*#3*\else\ (#3)\fi\else #1\fi\endgroup}
+\providecommand
+  \textsuperscript[1]{\mbox{$^{\mbox{\scriptsize#1}}$}}
+\providecommand\@firstofone[1]{#1}
+
+
+\newcommand\NAT@citex{}
+\def\NAT@citex%
+  [#1][#2]#3{%
+  \NAT@sort@cites{#3}%
+  \let\@citea\@empty
+  \@cite{\let\NAT@nm\@empty\let\NAT@year\@empty
+    \@for\@citeb:=\NAT@cite@list\do
+    {\edef\@citeb{\expandafter\@firstofone\@citeb}%
+     \if@filesw\immediate\write\@auxout{\string\citation{\@citeb}}\fi
+     \@ifundefined{b@\@citeb\@extra@b@citeb}{\@citea%
+       {\reset@font\bfseries ?}\NAT@citeundefined
+                 \PackageWarning{nissya_bib}%
+       {Citation `\@citeb' on page \thepage \space undefined}\def\NAT@date{}}%
+     {\let\NAT@last@nm=\NAT@nm\let\NAT@last@yr=\NAT@year
+     \NAT@parse{\@citeb}%
+% 変更開始: \citep（NAT@swa true）の場合はlongnamesを無視
+\ifNAT@swa%
+    \relax%
+\else%
+  \ifNAT@longnames%
+    \NAT@longusedcheck{\NAT@all@namespur}%
+  \fi%
+\fi%
+% 変更開始： *がついていた場合(NAT@full true)の分岐
+     \ifNAT@full%
+       \ifNAT@swa%
+         \let\NAT@nm\NAT@all@names%
+       \else%
+         \let\NAT@nm\NAT@all@namesff%
+       \fi
+     \else%
+       \let\NAT@nm\NAT@name%
+     \fi%
+% 変更終了
+     \ifNAT@swa\ifcase\NAT@ctype
+       \if\relax\NAT@date\relax
+         \@citea\hyper@natlinkstart{\@citeb\@extra@b@citeb}%
+         \NAT@nmfmt{\NAT@nm}\NAT@date\hyper@natlinkend
+       \else
+         \ifx\NAT@last@nm\NAT@nm\NAT@yrsep
+            \ifx\NAT@last@yr\NAT@year
+              \hyper@natlinkstart{\@citeb\@extra@b@citeb}\NAT@exlab
+              \hyper@natlinkend
+            \else\unskip\
+              \hyper@natlinkstart{\@citeb\@extra@b@citeb}\NAT@date
+              \hyper@natlinkend
+            \fi
+         \else\@citea\hyper@natlinkstart{\@citeb\@extra@b@citeb}%
+           \NAT@nmfmt{\NAT@nm}%
+           \hyper@natlinkbreak{\NAT@aysep\ }{\@citeb\@extra@b@citeb}%
+           \NAT@date\hyper@natlinkend
+         \fi
+       \fi
+     \or\@citea\hyper@natlinkstart{\@citeb\@extra@b@citeb}%
+         \NAT@nmfmt{\NAT@nm}\hyper@natlinkend
+     \or\@citea\hyper@natlinkstart{\@citeb\@extra@b@citeb}%
+         \NAT@date\hyper@natlinkend
+     \or\@citea\hyper@natlinkstart{\@citeb\@extra@b@citeb}%
+         \NAT@alias\hyper@natlinkend
+     \fi \def\@citea{\NAT@sep\ }%
+     \else\ifcase\NAT@ctype
+        \if\relax\NAT@date\relax
+          \@citea\hyper@natlinkstart{\@citeb\@extra@b@citeb}%
+          \NAT@nmfmt{\NAT@nm}\hyper@natlinkend
+        \else
+         \ifx\NAT@last@nm\NAT@nm\NAT@yrsep
+            \ifx\NAT@last@yr\NAT@year
+              \hyper@natlinkstart{\@citeb\@extra@b@citeb}\NAT@exlab
+              \hyper@natlinkend
+            \else\unskip\
+              \hyper@natlinkstart{\@citeb\@extra@b@citeb}\NAT@date
+              \hyper@natlinkend
+            \fi
+         \else\@citea\hyper@natlinkstart{\@citeb\@extra@b@citeb}%
+           \NAT@nmfmt{\NAT@nm}%
+           \hyper@natlinkbreak{\ \NAT@@open\if*#1*\else#1\ \fi}%
+              {\@citeb\@extra@b@citeb}%
+           \NAT@date\hyper@natlinkend\fi
+        \fi
+       \or\@citea\hyper@natlinkstart{\@citeb\@extra@b@citeb}%
+         \NAT@nmfmt{\NAT@nm}\hyper@natlinkend
+       \or\@citea\hyper@natlinkstart{\@citeb\@extra@b@citeb}%
+         \NAT@date\hyper@natlinkend
+       \or\@citea\hyper@natlinkstart{\@citeb\@extra@b@citeb}%
+         \NAT@alias\hyper@natlinkend
+       \fi \if\relax\NAT@date\relax\def\@citea{\NAT@sep\ }%
+           \else\def\@citea{\NAT@@close\NAT@sep\ }\fi
+     \fi
+     }}\ifNAT@swa\else\if*#2*\else\NAT@cmt#2\fi
+     \if\relax\NAT@date\relax\else\NAT@@close\fi\fi}{#1}{#2}}
+\newif\ifNAT@par \NAT@partrue
+
+\newcommand\NAT@@open{\ifNAT@par\NAT@open\fi}
+
+\newcommand\NAT@@close{\ifNAT@par\NAT@close\fi}
+
+%% 変更開始
+\newcommand\NAT@longusedcheck[1]{%
+\renewcommand{\nobreakspace}{ }%
+   \@ifundefined{check@#1}%
+   {%
+     \ifNAT@forceshort%
+       \relax%
+     \else%
+       \global\@namedef{check@#1}{}%
+       \let\NAT@name=\NAT@all@namesff%
+     \fi}%
+   {\relax}%
+}
+%% 変更終了
+\newcommand\NAT@alias{\@ifundefined{al@\@citeb\@extra@b@citeb}{%
+  {\reset@font\bfseries(alias?)}\PackageWarning{nissya_bib}
+  {Alias undefined for citation `\@citeb'
+  \MessageBreak on page \thepage}}{\@nameuse{al@\@citeb\@extra@b@citeb}}}
+\let\NAT@up\relax
+\newcommand\NAT@Up[1]{{\let\protect\@unexpandable@protect\let~\relax
+  \expandafter\NAT@deftemp#1}\expandafter\NAT@UP\NAT@temp}
+\newcommand\NAT@deftemp[1]{\xdef\NAT@temp{#1}}
+\newcommand\NAT@UP[1]{\let\@tempa\NAT@UP\ifcat a#1\MakeUppercase{#1}%
+  \let\@tempa\relax\else#1\fi\@tempa}
+\newcommand\shortcites[1]{%
+  \@bsphack\@for\@citeb:=#1\do
+  {\edef\@citeb{\expandafter\@firstofone\@citeb}%
+   \global\@namedef{bv@\@citeb\@extra@b@citeb}{}}\@esphack}
+\newcommand\NAT@biblabel[1]{\hfill}
+\newcommand\NAT@biblabelnum[1]{\bibnumfmt{#1}}
+\newcommand\bibnumfmt[1]{[#1]}
+\def\@tempa#1{[#1]}
+\ifx\@tempa\@biblabel\let\@biblabel\@empty\fi
+\newcommand\NAT@bibsetnum[1]{\settowidth\labelwidth{\@biblabel{#1}}%
+   \setlength{\leftmargin}{\labelwidth}\addtolength{\leftmargin}{\labelsep}%
+   \setlength{\itemsep}{\bibsep}\setlength{\parsep}{\z@}%
+   \ifNAT@openbib
+     \addtolength{\leftmargin}{\bibindent}%
+     \setlength{\itemindent}{-\bibindent}%
+     \setlength{\listparindent}{\itemindent}%
+     \setlength{\parsep}{0pt}%
+   \fi
+}
+\newlength{\bibhang}
+\setlength{\bibhang}{1em}
+\newlength{\bibsep}
+{\@listi \global\bibsep\itemsep \global\advance\bibsep by\parsep}
+
+\newcommand\NAT@bibsetup%
+   [1]{\setlength{\leftmargin}{\bibhang}\setlength{\itemindent}{-\leftmargin}%
+       \setlength{\itemsep}{\bibsep}\setlength{\parsep}{\z@}}
+\newcommand\NAT@set@cites{\ifNAT@numbers
+  \ifNAT@super \let\@cite\NAT@citesuper
+     \def\NAT@mbox##1{\unskip\nobreak\hspace{1\p@}\textsuperscript{##1}}%
+     \let\citeyearpar=\citeyear
+     \let\NAT@space\relax\else
+     \let\NAT@mbox=\mbox
+     \let\@cite\NAT@citenum \def\NAT@space{ }\fi
+  \let\@citex\NAT@citexnum
+  \ifx\@biblabel\@empty\let\@biblabel\NAT@biblabelnum\fi
+  \let\@bibsetup\NAT@bibsetnum
+  \def\natexlab##1{}%
+ \else
+  \let\@cite\NAT@cite
+  \let\@citex\NAT@citex
+  \let\@biblabel\NAT@biblabel
+  \let\@bibsetup\NAT@bibsetup
+  \def\natexlab##1{##1}%
+ \fi}
+\AtBeginDocument{\NAT@set@cites}
+\AtBeginDocument{\ifx\SK@def\@undefined\else
+\ifx\SK@cite\@empty\else
+  \SK@def\@citex[#1][#2]#3{\SK@\SK@@ref{#3}\SK@@citex[#1][#2]{#3}}\fi
+\ifx\SK@citeauthor\@undefined\def\HAR@checkdef{}\else
+  \let\citeauthor\SK@citeauthor
+  \let\citefullauthor\SK@citefullauthor
+  \let\citeyear\SK@citeyear\fi
+\fi}
+\AtBeginDocument{\@ifpackageloaded{hyperref}{%
+  \ifnum\NAT@sort=2\def\NAT@sort{1}\fi}{}}
+\newif\ifNAT@full\NAT@fullfalse
+\newif\ifNAT@swa
+\newif\ifNAT@forceshort%                          追加変数
+\DeclareRobustCommand\citet
+   {\begingroup\NAT@swafalse\def\NAT@ctype{0}\NAT@partrue
+     \@ifstar{\NAT@fulltrue\NAT@citetp}{\NAT@fullfalse\NAT@citetp}}
+\newcommand\NAT@citetp{\@ifnextchar[{\NAT@@citetp}{\NAT@@citetp[]}}
+\newcommand\NAT@@citetp{}
+\def\NAT@@citetp[#1]{\@ifnextchar[{\@citex[#1]}{\@citex[][#1]}}
+\DeclareRobustCommand\citep
+   {\begingroup\NAT@swatrue\def\NAT@ctype{0}\NAT@partrue
+         \@ifstar{\NAT@fulltrue\NAT@citetp}{\NAT@fullfalse\NAT@citetp}}
+\DeclareRobustCommand\cite
+    {\begingroup\def\NAT@ctype{0}\NAT@partrue\NAT@swatrue
+      \@ifstar{\NAT@fulltrue\NAT@cites}{\NAT@fullfalse\NAT@cites}}
+%\DeclareRobustCommand\citets
+%    {\begingroup\def\NAT@ctype{0}\NAT@partrue\NAT@swatrue\NAT@forceshorttrue
+%      \@ifstar{\NAT@fulltrue\NAT@cites}{\NAT@fullfalse\NAT@cites}}
+\DeclareRobustCommand\citets
+   {\begingroup\NAT@swafalse\def\NAT@ctype{0}\NAT@partrue\NAT@forceshorttrue
+     \@ifstar{\NAT@fulltrue\NAT@citetp}{\NAT@fullfalse\NAT@citetp}}
+\newcommand\NAT@cites{\@ifnextchar [{\NAT@@citetp}{%
+     \ifNAT@numbers\else
+     \NAT@swafalse
+     \fi
+    \NAT@@citetp[]}}
+\DeclareRobustCommand\citealt
+   {\begingroup\NAT@swafalse\def\NAT@ctype{0}\NAT@parfalse
+         \@ifstar{\NAT@fulltrue\NAT@citetp}{\NAT@fullfalse\NAT@citetp}}
+\DeclareRobustCommand\citealp
+   {\begingroup\NAT@swatrue\def\NAT@ctype{0}\NAT@parfalse
+         \@ifstar{\NAT@fulltrue\NAT@citetp}{\NAT@fullfalse\NAT@citetp}}
+\DeclareRobustCommand\citeauthor
+   {\begingroup\NAT@swafalse\def\NAT@ctype{1}\NAT@parfalse
+    \@ifstar{\NAT@fulltrue\NAT@citetp}{\NAT@fullfalse\NAT@citetp}}
+\DeclareRobustCommand\Citet
+   {\begingroup\NAT@swafalse\def\NAT@ctype{0}\NAT@partrue
+     \let\NAT@up\NAT@Up
+     \@ifstar{\NAT@fulltrue\NAT@citetp}{\NAT@fullfalse\NAT@citetp}}
+\DeclareRobustCommand\Citep
+   {\begingroup\NAT@swatrue\def\NAT@ctype{0}\NAT@partrue
+     \let\NAT@up\NAT@Up
+         \@ifstar{\NAT@fulltrue\NAT@citetp}{\NAT@fullfalse\NAT@citetp}}
+\DeclareRobustCommand\Citealt
+   {\begingroup\NAT@swafalse\def\NAT@ctype{0}\NAT@parfalse
+     \let\NAT@up\NAT@Up
+         \@ifstar{\NAT@fulltrue\NAT@citetp}{\NAT@fullfalse\NAT@citetp}}
+\DeclareRobustCommand\Citealp
+   {\begingroup\NAT@swatrue\def\NAT@ctype{0}\NAT@parfalse
+     \let\NAT@up\NAT@Up
+         \@ifstar{\NAT@fulltrue\NAT@citetp}{\NAT@fullfalse\NAT@citetp}}
+\DeclareRobustCommand\Citeauthor
+   {\begingroup\NAT@swafalse\def\NAT@ctype{1}\NAT@parfalse
+     \let\NAT@up\NAT@Up
+    \@ifstar{\NAT@fulltrue\NAT@citetp}{\NAT@fullfalse\NAT@citetp}}
+\DeclareRobustCommand\citeyear
+   {\begingroup\NAT@swafalse\def\NAT@ctype{2}\NAT@parfalse\NAT@citetp}
+\DeclareRobustCommand\citeyearpar
+   {\begingroup\NAT@swatrue\def\NAT@ctype{2}\NAT@partrue\NAT@citetp}
+\newcommand\citetext[1]{\NAT@open#1\NAT@close}
+\DeclareRobustCommand\citefullauthor
+   {\citeauthor*}
+\newcommand\defcitealias[2]{%
+   \@ifundefined{al@#1\@extra@b@citeb}{}
+   {\PackageWarning{nissya_bib}{Overwriting existing alias for citation #1}}
+   \@namedef{al@#1\@extra@b@citeb}{#2}}
+\DeclareRobustCommand\citetalias{\begingroup
+   \NAT@swafalse\def\NAT@ctype{3}\NAT@parfalse\NAT@citetp}
+\DeclareRobustCommand\citepalias{\begingroup
+   \NAT@swatrue\def\NAT@ctype{3}\NAT@partrue\NAT@citetp}
+\renewcommand\nocite[1]{\@bsphack
+  \@for\@citeb:=#1\do{%
+    \edef\@citeb{\expandafter\@firstofone\@citeb}%
+    \if@filesw\immediate\write\@auxout{\string\citation{\@citeb}}\fi
+    \if*\@citeb\else
+    \@ifundefined{b@\@citeb\@extra@b@citeb}{%
+       \NAT@citeundefined \PackageWarning{nissya_bib}%
+       {Citation `\@citeb' undefined}}{}\fi}%
+  \@esphack}
+\newcommand\NAT@parse[1]{{%
+     \let\protect=\@unexpandable@protect\let~\relax
+     \let\active@prefix=\@gobble
+     \xdef\NAT@temp{\csname b@#1\@extra@b@citeb\endcsname}}%
+     \expandafter\NAT@split\NAT@temp
+     \expandafter\NAT@parse@date\NAT@date??????@@%
+     \ifciteindex\NAT@index\fi
+}
+\newcommand\NAT@split[6]{%
+  \gdef\NAT@num{#1}\gdef\NAT@name{#3}\gdef\NAT@date{#2}%
+  \gdef\NAT@all@names{#4}\gdef\NAT@all@namesff{#5}\gdef\NAT@all@namespur{#6}%
+  \ifx\NAT@noname\NAT@all@names \gdef\NAT@all@names{#3}\fi}
+\newcommand\NAT@parse@date{}
+\def\NAT@parse@date#1#2#3#4#5#6@@{%
+  \ifnum\the\catcode`#1=11\def\NAT@year{}\def\NAT@exlab{#1}\else
+  \ifnum\the\catcode`#2=11\def\NAT@year{#1}\def\NAT@exlab{#2}\else
+  \ifnum\the\catcode`#3=11\def\NAT@year{#1#2}\def\NAT@exlab{#3}\else
+  \ifnum\the\catcode`#4=11\def\NAT@year{#1#2#3}\def\NAT@exlab{#4}\else
+    \def\NAT@year{#1#2#3#4}\def\NAT@exlab{{#5}}\fi\fi\fi\fi}
+\newcommand\NAT@index{}
+\let\NAT@makeindex=\makeindex
+\renewcommand\makeindex{\NAT@makeindex
+  \renewcommand\NAT@index{\@bsphack\begingroup
+     \def~{\string~}\@wrindex{\NAT@idxtxt}}}
+\newcommand\NAT@idxtxt{\NAT@name\ \NAT@open\NAT@date\NAT@close}
+\@ifundefined{@indexfile}{}{\let\NAT@makeindex\relax\makeindex}
+\newif\ifciteindex \citeindexfalse
+\newcommand\citeindextype{default}
+\newcommand\NAT@index@alt{{\let\protect=\noexpand\let~\relax
+  \xdef\NAT@temp{\NAT@idxtxt}}\expandafter\NAT@exp\NAT@temp\@nil}
+\newcommand\NAT@exp{}
+\def\NAT@exp#1\@nil{\index[\citeindextype]{#1}}
+
+\AtBeginDocument{%
+\@ifpackageloaded{index}{\let\NAT@index=\NAT@index@alt}{}}
+\newcommand\NAT@ifcmd{\futurelet\NAT@temp\NAT@ifxcmd}
+\newcommand\NAT@ifxcmd{\ifx\NAT@temp\relax\else\expandafter\NAT@bare\fi}
+%% 変更開始  #6 #7を追加
+\def\NAT@bare#1(#2)#3(@)#4\@nil#5#6#7{%
+  \if @#2
+  \expandafter\NAT@apalk#1, , \@nil{#5}{#6}{#7}\else
+  \stepcounter{NAT@ctr}%
+  \NAT@wrout{\arabic {NAT@ctr}}{#2}{#1}{#3}{#5}{#6}{#7}
+\fi
+}
+\newcommand\NAT@wrout[7]{%
+\if@filesw
+      {\let\protect\noexpand\let~\relax
+       \immediate
+       \write\@auxout{\string\bibcite{#5}{{#1}{#2}{{#3}}{{#4}}{{#6}}{{#7}}}}}\fi%% 変更終了
+
+\ignorespaces}
+\def\NAT@noname{{}}
+\renewcommand\bibitem{%
+  \@ifnextchar[{\@lbibitem}{%
+    \global\NAT@stdbsttrue
+    \stepcounter{NAT@ctr}\@lbibitem[\arabic{NAT@ctr}]}}
+%% 変更開始
+\def\@lbibitem[#1]#2#3#4{%      #3#4が追加分
+  \if\relax\@extra@b@citeb\relax\else
+    \@ifundefined{br@#2\@extra@b@citeb}{}{%
+     \@namedef{br@#2}{\@nameuse{br@#2\@extra@b@citeb}}}\fi
+   \@ifundefined{b@#2\@extra@b@citeb}{\def\NAT@num{}}{\NAT@parse{#2}}%
+   \item[\hfil\hyper@natanchorstart{#2\@extra@b@citeb}\@biblabel{\NAT@num}%
+    \hyper@natanchorend]%
+    \NAT@ifcmd#1(@)(@)\@nil{#2}{#3}{#4}%
+%  \@namedef{kh@#2@tfull}{#3}
+}
+%% 変更終了
+\ifx\SK@lbibitem\@undefined\else
+   \let\SK@lbibitem\@lbibitem
+   \def\@lbibitem[#1]#2{%
+     \SK@lbibitem[#1]{#2}\SK@\SK@@label{#2}\ignorespaces}\fi
+\newif\ifNAT@stdbst \NAT@stdbstfalse
+
+\AtEndDocument
+  {\ifNAT@stdbst\if@filesw\immediate\write\@auxout{\string
+   \global\string\NAT@numberstrue}\fi\fi
+  }
+\providecommand\bibcite{}
+\renewcommand\bibcite[2]{\@ifundefined{b@#1\@extra@binfo}\relax
+     {\NAT@citemultiple
+      \PackageWarningNoLine{nissya_bib}{Citation `#1' multiply defined}}%
+  \global\@namedef{b@#1\@extra@binfo}{#2}%
+  }
+\AtEndDocument{\NAT@swatrue\let\bibcite\NAT@testdef}
+\newcommand\NAT@testdef[2]{%
+  \def\NAT@temp{#2}\expandafter \ifx \csname b@#1\@extra@binfo\endcsname
+    \NAT@temp \else \ifNAT@swa \NAT@swafalse
+       \PackageWarningNoLine{nissya_bib}{Citation(s) may have
+          changed.\MessageBreak
+          Rerun to get citations correct}\fi\fi}
+\newcommand\NAT@apalk{}
+%% 変更開始
+\def\NAT@apalk#1, #2, #3\@nil#4#5#6{\if\relax#2\relax
+  \global\NAT@stdbsttrue
+  \NAT@wrout{#1}{}{}{}{#4}\else
+  \stepcounter{NAT@ctr}%
+  \NAT@wrout{\arabic {NAT@ctr}}{#2}{#1}{}{#4}{#5}{#6}\fi}
+%% 変更終了
+\newcommand\citestarts{\NAT@open}
+\newcommand\citeends{\NAT@close}
+\newcommand\betweenauthors{and}
+\newcommand\citename{}
+\def\citename#1#2(@)(@)\@nil#3{\expandafter\NAT@apalk#1#2, \@nil{#3}}
+\newcommand\harvarditem[4][]%
+    {\if\relax#1\relax\bibitem[#2(#3)]{#4}\else
+        \bibitem[#1(#3)#2]{#4}\fi }
+% 変更開始
+\newcommand\nissyaitem[6][]{\bibitem[#1(#5)#3]{#6}{#4}{#2}}
+% 変更終了
+\newcommand\harvardleft{\NAT@open}
+\newcommand\harvardright{\NAT@close}
+\newcommand\harvardyearleft{\NAT@open}
+\newcommand\harvardyearright{\NAT@close}
+\AtBeginDocument{\providecommand{\harvardand}{and}}
+\newcommand\harvardurl[1]{\textbf{URL:} \textit{#1}}
+\providecommand\bibsection{}
+\@ifundefined{chapter}%
+  {\renewcommand\bibsection{\section*{\refname
+    \@mkboth{\MakeUppercase{\refname}}{\MakeUppercase{\refname}}}}}
+  {\@ifundefined{NAT@sectionbib}%
+    {\renewcommand\bibsection{\chapter*{\bibname
+     \@mkboth{\MakeUppercase{\bibname}}{\MakeUppercase{\bibname}}}}}
+    {\renewcommand\bibsection{\section*{\bibname
+     \ifx\@mkboth\@gobbletwo\else\markright{\MakeUppercase{\bibname}}\fi}}}}
+\@ifclassloaded{amsart}%
+  {\renewcommand\bibsection{\section*{\refname}}}{}
+\@ifclassloaded{amsbook}%
+  {\renewcommand\bibsection{\chapter*{\bibname}}}{}
+\@ifundefined{bib@heading}{}{\let\bibsection\bib@heading}
+\newcounter{NAT@ctr}
+\renewenvironment{thebibliography}[1]{%
+ \bibsection\parindent \z@\bibpreamble\bibfont\list
+   {\@biblabel{\arabic{NAT@ctr}}}{\@bibsetup{#1}%
+    \setcounter{NAT@ctr}{0}}%
+    \ifNAT@openbib
+      \renewcommand\newblock{\par}
+    \else
+      \renewcommand\newblock{\hskip .11em \@plus.33em \@minus.07em}%
+    \fi
+    \sloppy\clubpenalty4000\widowpenalty4000
+    \sfcode`\.=1000\relax
+    \let\citeN\cite \let\shortcite\cite
+    \let\citeasnoun\cite
+ }{\def\@noitemerr{%
+  \PackageWarning{nissya_bib}
+     {Empty `thebibliography' environment}}%
+  \endlist\vskip-\lastskip}
+\let\bibfont\relax
+\let\bibpreamble\relax
+\providecommand\reset@font{\relax}
+\providecommand\bibname{Bibliography}
+\providecommand\refname{References}
+\newcommand\NAT@citeundefined{\gdef \NAT@undefined {%
+    \PackageWarningNoLine{nissya_bib}{There were undefined citations}}}
+\let \NAT@undefined \relax
+\newcommand\NAT@citemultiple{\gdef \NAT@multiple {%
+    \PackageWarningNoLine{nissya_bib}{There were multiply defined citations}}}
+\let \NAT@multiple \relax
+\AtEndDocument{\NAT@undefined\NAT@multiple}
+\providecommand\@mkboth[2]{}
+\providecommand\MakeUppercase{\uppercase}
+\providecommand{\@extra@b@citeb}{}
+\gdef\@extra@binfo{}
+\providecommand\hyper@natanchorstart[1]{}
+\providecommand\hyper@natanchorend{}
+\providecommand\hyper@natlinkstart[1]{}
+\providecommand\hyper@natlinkend{}
+\providecommand\hyper@natlinkbreak[2]{#1}
+\@ifundefined{bbl@redefine}{}{%
+ \bbl@redefine\nocite#1{%
+  \@safe@activestrue\org@nocite{#1}\@safe@activesfalse}%
+\bbl@redefine\@lbibitem[#1]#2{%
+  \@safe@activestrue\org@@lbibitem[#1]{#2}\@safe@activesfalse}%
+}
+\AtBeginDocument{\@ifundefined{bbl@redefine}{}{%
+\bbl@redefine\@citex[#1][#2]#3{%
+  \@safe@activestrue\org@@citex[#1][#2]{#3}\@safe@activesfalse}%
+\bbl@redefine\NAT@testdef#1#2{%
+  \@safe@activestrue\org@NAT@testdef{#1}{#2}\@safe@activesfalse}%
+\@ifundefined{org@@lbibitem}{%
+\bbl@redefine\@lbibitem[#1]#2{%
+  \@safe@activestrue\org@@lbibitem[#1]{#2}\@safe@activesfalse}}{}%
+}}
+\ifnum\NAT@sort>0
+\newcommand\NAT@sort@cites[1]{%
+\@tempcntb\m@ne
+\let\@celt\delimiter
+\def\NAT@num@list{}%
+\def\NAT@cite@list{}%
+\def\NAT@nonsort@list{}%
+\@for \@citeb:=#1\do{\NAT@make@cite@list}%
+\edef\NAT@cite@list{\NAT@cite@list\NAT@nonsort@list}%
+\edef\NAT@cite@list{\expandafter\NAT@xcom\NAT@cite@list @@}}
+\begingroup \catcode`\_=8
+\gdef\NAT@make@cite@list{%
+     \edef\@citeb{\expandafter\@firstofone\@citeb}%
+    \@ifundefined{b@\@citeb\@extra@b@citeb}{\def\NAT@num{A}}%
+    {\NAT@parse{\@citeb}}%
+      \ifcat _\ifnum\z@<0\NAT@num _\else A\fi
+       \@tempcnta\NAT@num \relax
+       \ifnum \@tempcnta>\@tempcntb
+          \edef\NAT@num@list{\NAT@num@list \@celt{\NAT@num}}%
+          \edef\NAT@cite@list{\NAT@cite@list\@citeb,}%
+          \@tempcntb\@tempcnta
+       \else
+          \let\NAT@@cite@list=\NAT@cite@list \def\NAT@cite@list{}%
+          \edef\NAT@num@list{\expandafter\NAT@num@celt \NAT@num@list \@gobble @}%
+          {\let\@celt=\NAT@celt\NAT@num@list}%
+       \fi
+    \else
+       \edef\NAT@nonsort@list{\NAT@nonsort@list\@citeb,}%
+ \fi}
+\endgroup
+\def\NAT@celt#1{\ifnum #1<\@tempcnta
+  \xdef\NAT@cite@list{\NAT@cite@list\expandafter\NAT@nextc\NAT@@cite@list @@}%
+  \xdef\NAT@@cite@list{\expandafter\NAT@restc\NAT@@cite@list}%
+ \else
+  \xdef\NAT@cite@list{\NAT@cite@list\@citeb,\NAT@@cite@list}\let\@celt\@gobble%
+ \fi}
+\def\NAT@num@celt#1#2{\ifx \@celt #1%
+     \ifnum #2<\@tempcnta
+        \@celt{#2}%
+        \expandafter\expandafter\expandafter\NAT@num@celt
+     \else
+        \@celt{\number\@tempcnta}\@celt{#2}%
+  \fi\fi}
+\def\NAT@nextc#1,#2@@{#1,}
+\def\NAT@restc#1,#2{#2}
+\def\NAT@xcom#1,@@{#1}
+\else
+ \newcommand\NAT@sort@cites[1]{\edef\NAT@cite@list{#1}}\fi
+\InputIfFileExists{natbib.cfg}
+       {\typeout{Local config file natbib.cfg used}}{}
+
+% 変更開始
+\bibpunct[: ]{(}{)}{;}{a}{}{,}
+\setlength{\bibhang}{2em}
+\def\refname{【文献】}
+\def\bibname{【文献】}
+\ifNAT@noinitial
+	\AtBeginDocument{\bibliographystyle{nissyal}}
+\else
+		\AtBeginDocument{\bibliographystyle{nissya}}
+\fi
+% 変更終了

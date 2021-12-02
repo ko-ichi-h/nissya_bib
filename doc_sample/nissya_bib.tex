@@ -1,0 +1,217 @@
+\documentclass[a4j]{jarticle}
+
+%% この文書で説明する「nissya_bib」を実際に使用 :)
+\usepackage{nissya_bib}
+
+%% 【文献】という見出しの大きさを「\subsubsection*」サイズに
+\renewcommand\bibsection{\subsubsection*{\refname}}
+
+%% 脚注のインデント
+\makeatletter
+\long\def\@makefntext#1{\parindent 1em\noindent
+\hbox to 2em{\hss$^{\@thefnmark}$~}%
+\@tempdima\columnwidth\advance\@tempdima-2em
+\parbox[t]{\@tempdima}{#1}}
+\makeatother
+\def\thefootnote{\arabic{footnote})}
+
+%% BibTeXのロゴを出すコマンドを定義
+\makeatletter
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\makeatother
+
+%% タイトル部
+\begin{document}
+\title{『社会学評論』用\BibTeX スタイルファイル}
+\author{樋口 耕一}
+\maketitle
+
+%% 文書開始
+
+\section*{はじめに}
+
+優れた組版システムとして実際の出版にも頻繁に利用されている\TeX には、文献リストを自動的に作成するツール「\BibTeX 」が既に備わっています。
+しかし、『社会学評論』形式の文献リストを出力するためのスタイルファイルが、これまでは存在しませんでした。
+社会学の分野では、『社会学評論』に投稿する時以外にも、『社会学評論』形式の引用・文献リストが求められることが多々あるかと思います。
+そこで、社会学の分野でも\TeX をより容易に、より有効に利用できるようになればと思い、\LaTeXe （\BibTeX）用スタイルファイルを作成・公開することにいたしました。
+このスタイルファイルを用いることで、『社会学評論』の規定に沿った形で引用・参照を行いつつ、文献リストを自動作成することができます
+\footnote{もちろん、自動作成とはいっても、事前に\BibTeX 用文献データベースを作製しておく必要があります。また、文献リストの作成は全自動ですが、文献注(citation)表記の自動化は、必ずしも完全ではありません。詳しくは、後述の引用・参照コマンドをご覧下さい。}
+。
+
+{\em
+これらのファイルは筆者個人が非公式に配布するものであり、『社会学評論』あるいは日本社会学会に公認されたものではありません。したがって、これらのファイルについての質問や苦情を、日本社会学会に寄せることは避けてください。
+}
+
+なお、以下の解説は、\BibTeX を使っている、\BibTeX を使ったことがある、あるいは、本などを見ながら\BibTeX を使うことができる方を対象としてします。
+
+\section{使い方}
+
+\subsection{概略}
+
+\begin{enumerate}
+\item 同梱されているスタイルファイル群を、それぞれ\LaTeXe および\BibTeX が見つけられる場所に置く （タイプセットする.texファイルと同じ場所でもうまくいくようです）
+\item .texファイルのプリアンブルに\verb| \usepackage{nissya_bib} |という行を加える
+\item 本文中で、\verb|\citep \citet \citeyear \nocite|などのコマンドを用いて引用、参照を行う
+\item 文書の末尾（文献リストを出力したい場所）に、\verb|\bibliography{my.bib}|コマンドを加える （「my.bib」の部分はお使いの文献DBファイル名に変更してください）
+\end{enumerate}
+
+\subsection{スタイルオプション: long}
+
+何も指定をせずに本スタイルファイルを用いると、外国人著者名を出力する際、ファーストネームとミドルネームは、そのイニシャルのみが出力されます。例えば、文献データベースには「Claude Serge Fischer」と入力されていても、「C. S. Fischer」あるいは「Fischer, C. S」と出力されます。
+このような省略を行いたくない場合は、次のように「long」オプション使用してください。\\
+　　\verb| \usepackage[long]{nissya_bib} |\\
+このオプションを用いることで、データベースに入力されている通りの著者名が出力されま
+す\footnote{『社会学評論』はイニシャルのみにするか、省略せずに記述するかを論文内で統一するよう要求しています。よって、「long」オプションを用いる場合、すべての外国人著者名が、イニシャルではなく、省略されていない形で文献データベースに入力されていることを確認してください。}\footnote{後述するように、「データベースに入力されている通り」といっても、出力場所に応じてファーストネームを先にしたり、ファミリーネームを先にしたり、あるいはファーストネーム・ミドルネームをイニシャルにしたりといった変形が行われます。}。
+なお、以下の解説で示す出力例は、全て、このオプションが用いられていない場合のものです。
+
+\subsection{引用・参照コマンド}
+
+本文中で引用・参照を行う際には、以下のコマンドをお使い下さい。
+以下のコマンドを使って引用・参照した文献が、自動的に文献リストに列挙されます。
+「樋口 2001」などと手で入力するのは容易いですが、(i)正しいフォーマットで引用・参照するとともに、(ii)文献リストからの漏れを防ぐためにも、以下のコマンドの利用をお勧めします。
+
+\subsubsection{著者名(出版年)}
+著者名(出版年)の形、すなわち本文中に著者名を挙げる形で引用・参照する場合は、\verb|\citet{}|コマンドを使います（表\ref{citet}）。
+このコマンドは、初回の引用・参照では著者のフルネームを出力し、2回目以降は姓だけを出力します。
+なお、\verb|\citet{}|コマンドが外国人著者のフルネームを出力する場合、ファーストネーム、ミドルネーム、ラストネームの順で著者名が出力されます。
+これらの挙動は、『社会学評論』の規定に沿った引用・参照を行うためのものです。
+
+なお、2回目以降でも強制的にフルネームを出力したい場合は、アスタリスクをつけてこのコマンドを用いてください（\verb|\citet*{}|）。
+また、1回目でも姓のみを記したい場合は、「s」をつけてこのコマンドを用います（\verb|\citets{}|）。
+
+\begin{table}[htb]
+\caption{ 「著者名(出版年)」形式： citetコマンド}
+\label{citet}
+\begin{center}
+\begin{tabular}{lll} \hline
+\em コメント & \em 入力 & \em 出力\\ \hline
+一回目(洋) & \verb|\citet{gms1}| & \citet{gms1} \\
+二回目以降(洋) & \verb|\citet{gms1}| & \citet{gms1} \\
+一回目(和) & \verb|\citet{hgc1}| & \citet{hgc1} \\
+二回目以降(和) & \verb|\citet{hgc1}| & \citet{hgc1} \\
+%著者2名 &\verb|\citet{kawabata_higuchi2003}| & \citet{kawabata_higuchi2003} \\
+%著者3名以上 & \verb|\citet{naoi_sugano_iwabuti2003}| & \citet{naoi_sugano_iwabuti2003} \\
+フルネームを強制 & \verb|\citet*{gms1}| & \citet*{gms1} \\
+姓のみを強制（和） & \verb|\citets{cmcjdb44}| & \citets{cmcjdb44} \\
+ページ数つき & \verb|\citet[15-6]{hgc3}| & \citet[15-6]{hgc3} \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\subsubsection{（著者名 出版年)}
+(著者名 出版年)の形、すなわち著者名を文献注に入れる形で引用・参照する場合は、\verb|\citep{}|コマンドを用いてください（表\ref{citep}）。
+このコマンドでは常に著者の姓だけが出力されます。
+同姓の著者がいる場合などで、フルネームを出力したい場合は、アスタリスクをつけてこのコマンドを用いてください（\verb|\citep*{}|）。
+なお、\verb|\citep{}|コマンドが外国人著者のフルネームを出力する場合は、『社会学評論』の規定に従って、常にファミリーネーム，イニシャルという出力になります\footnote{「long」オプションを用いていた場合でも同様の出力になります。}。
+
+\begin{table}[htb]
+\caption{ (著者名 出版年)形式： citepコマンド}
+\label{citep}
+\begin{center}
+\begin{tabular}{lll} \hline
+\em コメント & \em 入力 & \em 出力\\ \hline
+著者1名の場合 & \verb|\citep{hgc1}| & \citep{hgc1} \\
+著者2名の場合 & \verb|\citep{kh2003}| & \citep{kh2003} \\
+著者3名以上の場合 & \verb|\citep{nsi2003}| & \citep{nsi2003} \\
+編書の場合 & \verb|\citep{kwbt99}| & \citep{kwbt99} \\
+フルネームを強制（洋） & \verb|\citep*{gms1}| & \citep*{gms1} \\
+フルネームを強制（和） & \verb|\citep*{hgc1}| & \citep*{hgc1} \\
+ページ数つき & \verb|\citep[42-3]{cmcjdb44}| & \citep[42-3]{cmcjdb44} \\
+列挙 & \verb|\citep{kwbt1,hgc1,hgc3}| & \citep{kwbt1,hgc1,hgc3} \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\nocite{kwbt99}
+
+\subsubsection{出版年のみ}
+
+学説史を議論する場合などで、\verb|\citet|や \verb|\citep|コマンドによる著者名・出版年の記述では不十分であったり、趣味に合わなかったりという場合は、\verb|\citeyear|コマンドをお使いください。
+\verb|\citeyear|コマンドは、出版年部分だけを出力します（表\ref{citeyear}）。
+このコマンドを使っておけば、少なくとも、同著者・同出版年の文献がある場合などの出版年の変形を自動化できます。また、このコマンドを使っておけば、引用・参照した文献が自動的にリストアップされます\footnote{ここで「自動化」というのは、楽をするためというよりも、ミスを未然に防ぐ手段です。2, 3枚のレジュメならともかく、50枚の投稿論文、ひいては数百枚の学位論文ともなると・・・。}。
+
+もちろん、上述の\verb|\citet|や \verb|\citep|コマンドにおいても、出版年の変形は自動的に行われます。
+例えば、「\verb|\citet{fschr92j}|によれば・・・」と入力すると、「\citet{fschr92j}によれば・・・」と出力されます。
+
+\begin{table}[htb]
+\caption{ 出版年のみ： citeyearコマンド}
+\label{citeyear}
+\begin{center}
+\begin{tabular}{lll} \hline
+\em コメント & \em 入力 & \em 出力\\ \hline
+通常の場合 & \verb|\citeyear{nsi2003}| & \citeyear{nsi2003} \\
+翻訳書の場合 & \verb|\citeyear{fschr92j}| & \citeyear{fschr92j} \\
+同著者・同出版年の文献がある場合 & \verb|\citeyear{kwbt}| & \citeyear{kwbt} \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+
+\subsubsection{引用・参照しないもの}
+
+本文中で引用・参照しないけれど、文献リストには挙げたい場合、\verb|\nocite{}|コマンドを使います。1つ1つ指定しても良いですし、データベース中の全文献をリストアップしたい場合には\verb|\nocite{*}|とします。
+ただし『社会学評論』では、本文中に対応する引用・参照が無い文献をリストに挙げることは、禁じられています。『社会学評論』に投稿する際は、このコマンドを使わないでください。
+
+
+\subsection{自動作成される文献リスト}
+
+上述のコマンドで参照・引用された文献が、『社会学評論』の規定に沿った書式で、自動的にリストアップされます。
+この文書の末尾（5ページ）に、自動作製される文献リストの例があります。
+
+もし文献リストの書式に不具合を発見された場合には、筆者まで御連絡いただけましたら幸いです。
+もっとも、筆者が修正版を公開するのを待っていられないという場合は、.bblファイルを直に編集・修正してから\LaTeXe によるタイプセットを行うことで、とりあえずの修正が可能です。
+
+\section{ご使用にあたって}
+\subsection{既知の問題点}
+
+\begin{description}
+\item[縦書き]  今のところ、横書きのことしか考えていません。縦書き文書中でも、年号を漢数字に直すといった特殊処理は一切行われません。
+\item[文献のタイプ] 全てのタイプの文献を上手く処理できるかどうか確認していません。またarticle、book、incollection等でも、文献データベースでの指定によっては、上手く処理できない場合があるかもしれません。
+\item[その他] その他にも問題点・バグが残っている可能性が無いわけではありません。御連絡を頂ければ、力の及ぶ限り、修正させていただきます。
+\end{description}
+
+
+\subsection{更新履歴}
+
+2009 04/20に公開の版では以下の点を修正しました。
+\begin{itemize}
+\item crossref使用時に、booktitleの後ろにコンマが入らない場合がある問題を修正
+\item コンマの後ろのスペースを\verb|\hspace|から\verb|~|に変更
+\item .edと.edsの使い分けに失敗する場合があった問題を修正
+\item 博士論文（phdthesis）の文献リストにおける出力を修正
+\item 同じ著者名が続く場合の表記を、全角ダッシュ4つから、4文字分の長さの横線を引くコマンドに修正
+\item 著者名の直後に2つコンマが入ってしまう場合がある問題を修正
+\item 著者名ラベル（通常は印字されない内部利用のラベル）の作成方法を修正
+\end{itemize}
+
+
+\subsection{著作権}
+
+これらのファイルはいずれも既存のファイルを筆者が編集したものです。
+筆者が編集した部分の著作権は筆者に属しますが、以下の条件において、このファイルを自由に複製・変更・配布することができます。
+\begin{enumerate}
+\item[(1)] you make absolutely no changes to your copy, including name, or
+\item[(2)] if you do make changes, you name it something other than,\\
+　　natbib.sty, jbtxbst.doc, jplain.bst, junsrt.bst, jalpha.bst,\\
+　　jabbrv.bst, tipsj.bst, jipsj.bst, tieice.bst, jname.bst, jorsj.bst,\\
+　　jglsj.bst, seg.bst, jpolisci.bst, jecon.bst, nissya.bst, nissyal.bst nissya\_bib.sty
+\end{enumerate}
+この条件は、``\LaTeX \ Project Public License''に準拠するつもりで書いたものですが、もし誤りを発見された場合は、御連絡を頂けましたら幸いです。
+
+最後に、これらのファイルは無補償で配布されています。これらのファイルをご利用になることで生じるいかなる不利益についても、筆者はその責を負いかねます。
+
+\subsubsection*{【謝辞】}
+
+引用・参照コマンドを実装している「nissya\_bib.sty」は、主としてPatrick W. Daly氏の「natbib.sty」を編集させていただくことで作製しました。
+また、文献リストのフォーマットを行う「nissya.bst」は、武田史郎氏によって作製された経済学用\BibTeX スタイルファイル「jecon.bst」を編集させていただくことで作製しました。さらに「jecon.bst」は、飯田修氏によって作成された「jpolisci.bst」をもとにして作製されたとのことです。ここに記して、各氏に感謝いたします。
+
+\nocite{netville2,Lonkila1995,jsrstyle}
+
+%% 文献リストの出力
+\bibliography{sample.bib}
+\end{document}
+
