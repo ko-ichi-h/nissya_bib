@@ -1,0 +1,182 @@
+\NeedsTeXFormat{LaTeX2e}[1995/06/01]
+\ProvidesPackage{nissya_bib_z}
+        [1999/05/28 7.0 (PWD)]
+
+% 文献注を囲むカッコを全角に変更
+
+% これはわりと大仕事だった……
+%     (1) \begingroup / \endgroupを削除することで文献注の後ろの余分な空白を削除
+%     (2) 以下の行から1つ目の「\ 」を削除することで，名前と（年）の間の余分な空
+%         白を削除：
+%         \hyper@natlinkbreak{\ \NAT@@open\if*#1*\else#1\ \fi}%
+%     (3) 文献注の直前前に」があった場合，"」"と"（"の間がべた組みになる問題は
+%         以下の修正で回避
+%         (a) \DeclareRobustCommand\citep{ → \def\citep{（\def\NAT@open{}
+%         (b) \citetなど他のコマンドには\def\NAT@open{（}を追加
+%         ※ \def等が動く前にさっさと"（"を出力してしまう
+
+\bibpunct[: ]{（}{）}{;}{a}{}{, }
+
+\def\endhoge{}
+\def\beginhoge{}
+
+\makeatletter
+\renewcommand\NAT@cite% ※くっつかないカッコその2
+[3]{\ifNAT@swa\NAT@@open\if*#2*\else#2\ \fi
+        #1\if*#3*\else\NAT@cmt#3\fi\NAT@@close\else#1\fi\endhoge}
+\renewcommand\NAT@citenum%
+    [3]{\ifNAT@swa\NAT@@open\if*#2*\else#2\ \fi
+        #1\if*#3*\else\NAT@cmt#3\fi\NAT@@close\else#1\fi\endhoge}
+\renewcommand\NAT@citesuper[3]{\ifNAT@swa
+\unskip\hspace{1\p@}\textsuperscript{#1}%
+   \if*#3*\else\ (#3)\fi\else #1\fi\endhoge}
+\DeclareRobustCommand\citet
+   {\def\NAT@open{（}\beginhoge\NAT@swafalse\def\NAT@ctype{0}\NAT@partrue
+     \@ifstar{\NAT@fulltrue\NAT@citetp}{\NAT@fullfalse\NAT@citetp}}
+\def\citep% ※ここのカッコはくっつく
+   {（\def\NAT@open{}\beginhoge\NAT@swatrue\def\NAT@ctype{0}\NAT@partrue
+         \@ifstar{\NAT@fulltrue\NAT@citetp}{\NAT@fullfalse\NAT@citetp}}
+\DeclareRobustCommand\cite
+    {\def\NAT@open{（}\beginhoge\def\NAT@ctype{0}\NAT@partrue\NAT@swatrue
+      \@ifstar{\NAT@fulltrue\NAT@cites}{\NAT@fullfalse\NAT@cites}}
+%\DeclareRobustCommand\citets
+%    {\beginhoge\def\NAT@ctype{0}\NAT@partrue\NAT@swatrue\NAT@forceshorttrue
+%      \@ifstar{\NAT@fulltrue\NAT@cites}{\NAT@fullfalse\NAT@cites}}
+\DeclareRobustCommand\citets
+   {\def\NAT@open{（}\beginhoge\NAT@swafalse\def\NAT@ctype{0}\NAT@partrue\NAT@forceshorttrue
+     \@ifstar{\NAT@fulltrue\NAT@citetp}{\NAT@fullfalse\NAT@citetp}}
+\DeclareRobustCommand\citealt
+   {\def\NAT@open{（}\beginhoge\NAT@swafalse\def\NAT@ctype{0}\NAT@parfalse
+         \@ifstar{\NAT@fulltrue\NAT@citetp}{\NAT@fullfalse\NAT@citetp}}
+\DeclareRobustCommand\citealp
+   {\def\NAT@open{（}\beginhoge\NAT@swatrue\def\NAT@ctype{0}\NAT@parfalse
+         \@ifstar{\NAT@fulltrue\NAT@citetp}{\NAT@fullfalse\NAT@citetp}}
+\DeclareRobustCommand\citeauthor
+   {\def\NAT@open{（}\beginhoge\NAT@swafalse\def\NAT@ctype{1}\NAT@parfalse
+    \@ifstar{\NAT@fulltrue\NAT@citetp}{\NAT@fullfalse\NAT@citetp}}
+\DeclareRobustCommand\Citet
+   {\def\NAT@open{（}\beginhoge\NAT@swafalse\def\NAT@ctype{0}\NAT@partrue
+     \let\NAT@up\NAT@Up
+     \@ifstar{\NAT@fulltrue\NAT@citetp}{\NAT@fullfalse\NAT@citetp}}
+\DeclareRobustCommand\Citep
+   {\def\NAT@open{（}\beginhoge\NAT@swatrue\def\NAT@ctype{0}\NAT@partrue
+     \let\NAT@up\NAT@Up
+         \@ifstar{\NAT@fulltrue\NAT@citetp}{\NAT@fullfalse\NAT@citetp}}
+\DeclareRobustCommand\Citealt
+   {\def\NAT@open{（}\beginhoge\NAT@swafalse\def\NAT@ctype{0}\NAT@parfalse
+     \let\NAT@up\NAT@Up
+         \@ifstar{\NAT@fulltrue\NAT@citetp}{\NAT@fullfalse\NAT@citetp}}
+\DeclareRobustCommand\Citealp
+   {\def\NAT@open{（}\beginhoge\NAT@swatrue\def\NAT@ctype{0}\NAT@parfalse
+     \let\NAT@up\NAT@Up
+         \@ifstar{\NAT@fulltrue\NAT@citetp}{\NAT@fullfalse\NAT@citetp}}
+\DeclareRobustCommand\Citeauthor
+   {\def\NAT@open{（}\beginhoge\NAT@swafalse\def\NAT@ctype{1}\NAT@parfalse
+     \let\NAT@up\NAT@Up
+    \@ifstar{\NAT@fulltrue\NAT@citetp}{\NAT@fullfalse\NAT@citetp}}
+\DeclareRobustCommand\citeyear
+   {\def\NAT@open{（}\beginhoge\NAT@swafalse\def\NAT@ctype{2}\NAT@parfalse\NAT@citetp}
+\DeclareRobustCommand\citeyearpar
+   {\def\NAT@open{（}\beginhoge\NAT@swatrue\def\NAT@ctype{2}\NAT@partrue\NAT@citetp}
+\DeclareRobustCommand\citefullauthor
+   {\def\NAT@open{（}\citeauthor*}
+\DeclareRobustCommand\citetalias{\beginhoge\def\NAT@open{（}
+   \NAT@swafalse\def\NAT@ctype{3}\NAT@parfalse\NAT@citetp}
+\DeclareRobustCommand\citepalias{\beginhoge\def\NAT@open{（}
+   \NAT@swatrue\def\NAT@ctype{3}\NAT@partrue\NAT@citetp}
+\renewcommand\makeindex{\NAT@makeindex\def\NAT@open{（}
+  \renewcommand\NAT@index{\@bsphack\beginhoge
+     \def~{\string~}\@wrindex{\NAT@idxtxt}}}
+
+\def\NAT@citex% ※くっつかないカッコその1
+  [#1][#2]#3{%
+  \NAT@sort@cites{#3}%
+  \let\@citea\@empty%
+  \@cite{\let\NAT@nm\@empty\let\NAT@year\@empty
+    \@for\@citeb:=\NAT@cite@list\do
+    {\edef\@citeb{\expandafter\@firstofone\@citeb}%
+     \if@filesw\immediate\write\@auxout{\string\citation{\@citeb}}\fi
+     \@ifundefined{b@\@citeb\@extra@b@citeb}{\@citea%
+       {\reset@font\bfseries ?}\NAT@citeundefined
+                 \PackageWarning{nissya_bib}%
+       {Citation `\@citeb' on page \thepage \space undefined}\def\NAT@date{}}%
+     {\let\NAT@last@nm=\NAT@nm\let\NAT@last@yr=\NAT@year
+     \NAT@parse{\@citeb}%
+% 変更開始: \citep（NAT@swa true）の場合はlongnamesを無視
+\ifNAT@swa%
+    \relax%
+\else%
+  \ifNAT@longnames%
+    \NAT@longusedcheck{\NAT@all@namespur}%
+  \fi%
+\fi%
+% 変更開始： *がついていた場合(NAT@full true)の分岐
+     \ifNAT@full%
+       \ifNAT@swa%
+         \let\NAT@nm\NAT@all@names%
+       \else%
+         \let\NAT@nm\NAT@all@namesff%
+       \fi
+     \else%
+       \let\NAT@nm\NAT@name%
+     \fi%
+% 変更終了
+     \ifNAT@swa\ifcase\NAT@ctype
+       \if\relax\NAT@date\relax
+         \@citea\hyper@natlinkstart{\@citeb\@extra@b@citeb}%
+         \NAT@nmfmt{\NAT@nm}\NAT@date\hyper@natlinkend
+       \else
+         \ifx\NAT@last@nm\NAT@nm\NAT@yrsep
+            \ifx\NAT@last@yr\NAT@year
+              \hyper@natlinkstart{\@citeb\@extra@b@citeb}\NAT@exlab
+              \hyper@natlinkend
+            \else\unskip\
+              \hyper@natlinkstart{\@citeb\@extra@b@citeb}\NAT@date
+              \hyper@natlinkend
+            \fi
+         \else\@citea\hyper@natlinkstart{\@citeb\@extra@b@citeb}%
+           \NAT@nmfmt{\NAT@nm}%
+           \hyper@natlinkbreak{\NAT@aysep\ }{\@citeb\@extra@b@citeb}%
+           \NAT@date\hyper@natlinkend
+         \fi
+       \fi
+     \or\@citea\hyper@natlinkstart{\@citeb\@extra@b@citeb}%
+         \NAT@nmfmt{\NAT@nm}\hyper@natlinkend
+     \or\@citea\hyper@natlinkstart{\@citeb\@extra@b@citeb}%
+         \NAT@date\hyper@natlinkend
+     \or\@citea\hyper@natlinkstart{\@citeb\@extra@b@citeb}%
+         \NAT@alias\hyper@natlinkend
+     \fi \def\@citea{\NAT@sep\ }%
+     \else\ifcase\NAT@ctype
+        \if\relax\NAT@date\relax
+          \@citea\hyper@natlinkstart{\@citeb\@extra@b@citeb}%
+          \NAT@nmfmt{\NAT@nm}\hyper@natlinkend
+        \else
+         \ifx\NAT@last@nm\NAT@nm\NAT@yrsep
+            \ifx\NAT@last@yr\NAT@year
+              \hyper@natlinkstart{\@citeb\@extra@b@citeb}\NAT@exlab
+              \hyper@natlinkend
+            \else\unskip\
+              \hyper@natlinkstart{\@citeb\@extra@b@citeb}\NAT@date
+              \hyper@natlinkend
+            \fi
+         \else\@citea\hyper@natlinkstart{\@citeb\@extra@b@citeb}%
+           \NAT@nmfmt{\NAT@nm}%
+           \hyper@natlinkbreak{\NAT@@open\if*#1*\else#1\ \fi}%
+              {\@citeb\@extra@b@citeb}%
+           \NAT@date\hyper@natlinkend\fi
+        \fi
+       \or\@citea\hyper@natlinkstart{\@citeb\@extra@b@citeb}%
+         \NAT@nmfmt{\NAT@nm}\hyper@natlinkend
+       \or\@citea\hyper@natlinkstart{\@citeb\@extra@b@citeb}%
+         \NAT@date\hyper@natlinkend
+       \or\@citea\hyper@natlinkstart{\@citeb\@extra@b@citeb}%
+         \NAT@alias\hyper@natlinkend
+       \fi \if\relax\NAT@date\relax\def\@citea{\NAT@sep\ }%
+           \else\def\@citea{\NAT@@close\NAT@sep\ }\fi
+     \fi
+     }}\ifNAT@swa\else\if*#2*\else\NAT@cmt#2\fi
+     \if\relax\NAT@date\relax\else\NAT@@close\fi\fi}{#1}{#2}}
+
+\renewcommand\NAT@sort@cites[1]{\edef\NAT@cite@list{#1}}
+\makeatother

@@ -22,7 +22,7 @@
 % First-written:       <2002/11/03>
 % Time-stamp:	       <2003-01-03 21:52:21 Shiro Takeda>
 % Version 1.4
-% $Id: nissya.bst,v 1.31 2005/02/18 19:23:10 ko-ichi Exp $
+% $Id: nissya.bst,v 1.38 2013/11/25 12:15:47 ko-ichi Exp $
 %
 % 元の jpolisci.bst の著作権は飯田さんにあります．
 % ぼくが改変した部分の著作権はどうでもいいです．好きなように扱ってくださ
@@ -355,13 +355,7 @@ FUNCTION {format.names}
 					{
 						s is.kanji.str$
 							{"・" *  t * }
-							{ 
-								numnames #2 =
-									{ " \& " * }
-									{ ", \& " *}
-								  if$
-								t *
-							}
+							{" \& " * t * }
 			 			if$
 			 		}
 				if$
@@ -406,13 +400,7 @@ FUNCTION {format.names.ed}
 					{
 						s is.kanji.str$
 							{"・" *  t * }
-							{ 
-								numnames #2 =
-									{ " \& " * }
-									{ ", \& " *}
-								  if$
-								t *
-							}
+							{" \& " * t * }
 			 			if$
 			 		}
 				if$
@@ -930,43 +918,32 @@ FUNCTION {format.book.crossref}
 }
 
 FUNCTION {format.incoll.inproc.crossref}
-{ editor empty$
-  editor field.or.null author field.or.null =
-  or
-	{ key empty$
-		{ booktitle empty$
-			{ "need editor, key, or booktitle for " cite$ * " to crossref " *
-				crossref * warning$
-				""
-			}
-			{ booktitle is.kanji.str$
-				{ booktitle emphasize }
-				{" {\em " booktitle * "\/} " * }
-			  if$
-			}
-		  if$
+{
+  %editor empty$
+  %editor field.or.null author field.or.null =
+  %or
+  		editor empty$
+  		{ "" * }
+  		{
+			"" format.crossref.editor *
+			is.kanji.entry
+				{
+					hentyo empty$
+						{ "編 " * }
+						{ "編著 " * }
+					if$
+				}
+				{
+					editor num.names$ #1 >
+						{" eds., " *}
+						{" ed., " *}
+					if$
+				}
+			if$
 		}
-		{ "" key * }
-	  if$
-	}
-	{
-		"" format.crossref.editor *
-		is.kanji.entry
-			{
-				hentyo empty$
-					{ "編 " * }
-					{ "編著 " * }
-				if$
-			}
-			{
-				editor num.names$ #1 >
-					{" eds., " *}
-					{" ed., " *}
-				if$
-			}
 		if$
 		booktitle is.kanji.str$
-			{ booktitle emphasize * ", " *}
+			{ booktitle emphasize * }
 			{
 				" {\em " * 
 				booktitle *
@@ -986,8 +963,6 @@ FUNCTION {format.incoll.inproc.crossref}
 			{", ~" *}
 			{", " * }
 		if$
-	}
-  if$
 %  " \cite{" * crossref * "}" *
 }
 
@@ -1202,18 +1177,20 @@ FUNCTION {inproceedings}
   format.title "title" output.check
   crossref missing$
     { format.in.ed.booktitle "booktitle" output.check
-      format.bvolume output
-      format.number.series output
-      address empty$
-	{ organization publisher new.sentence.checkb
-	  organization output
-	  publisher output
-	}
-	{ address output.nonnull
-	  organization output
-	  publisher output
-	}
-      if$
+	      format.bvolume output
+	      format.number.series output
+	      address empty$
+		{ organization publisher new.sentence.checkb
+		  organization output
+		  publisher output
+		  format.chapter.pages output
+		}
+		{ address output.nonnull
+		  organization output
+		  publisher output
+		  format.chapter.pages output
+		}
+	      if$
     }
     { format.incoll.inproc.crossref output.nonnull
       format.pages output
@@ -2158,7 +2135,7 @@ FUNCTION{punctuation}
   "%"                                                                    write$ newline$
   "%  This bbl file is created through nissya.bst"                        write$ newline$
   "%  nissya.bst is available at"                                         write$ newline$
-  "%  <http://hey.to/KO-ichi>"                        write$ newline$
+  "%  <https://github.com/ko-ichi-h/nissya_bib>"                        write$ newline$
   "%"                                                                    write$ newline$
   "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"  write$ newline$
   newline$
@@ -2176,7 +2153,7 @@ FUNCTION {begin.bib}
     { preamble$ write$ newline$ }
   if$
   "\ifx\undefined\bysame" write$ newline$
-  "\newcommand{\bysame}{\rule[.5ex]{4zw}{.15pt}}"
+  "\newcommand{\bysame}{\rule[.5ex]{4zw}{.3pt}}"
        write$ newline$
   "\fi" write$ newline$
   newline$

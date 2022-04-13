@@ -1,19 +1,11 @@
-\documentclass[a4j]{jarticle}
+\documentclass{jsarticle}
 
 %% この文書で説明する「nissya_bib」を実際に使用 :)
-\usepackage{nissya_bib}
+\usepackage{../nissya_bib}
+\usepackage{../nissya_bib_z} % カッコを全角に
 
 %% 【文献】という見出しの大きさを「\subsubsection*」サイズに
 \renewcommand\bibsection{\subsubsection*{\refname}}
-
-%% 脚注のインデント
-\makeatletter
-\long\def\@makefntext#1{\parindent 1em\noindent
-\hbox to 2em{\hss$^{\@thefnmark}$~}%
-\@tempdima\columnwidth\advance\@tempdima-2em
-\parbox[t]{\@tempdima}{#1}}
-\makeatother
-\def\thefootnote{\arabic{footnote})}
 
 %% BibTeXのロゴを出すコマンドを定義
 \makeatletter
@@ -36,7 +28,7 @@
 社会学の分野では、『社会学評論』に投稿する時以外にも、『社会学評論』形式の引用・文献リストが求められることが多々あるかと思います。
 そこで、社会学の分野でも\TeX をより容易に、より有効に利用できるようになればと思い、\LaTeXe （\BibTeX）用スタイルファイルを作成・公開することにいたしました。
 このスタイルファイルを用いることで、『社会学評論』の規定に沿った形で引用・参照を行いつつ、文献リストを自動作成することができます
-\footnote{もちろん、自動作成とはいっても、事前に\BibTeX 用文献データベースを作製しておく必要があります。また、文献リストの作成は全自動ですが、文献注(citation)表記の自動化は、必ずしも完全ではありません。詳しくは、後述の引用・参照コマンドをご覧下さい。}
+\footnote{もちろん、自動作成とはいっても、事前に\BibTeX 用文献データベースを作製しておく必要があります。また、文献リストの作成は全自動ですが、文献注（citation）表記の自動化は、必ずしも完全ではありません。詳しくは、後述の引用・参照コマンドをご覧下さい。}
 。
 
 {\em
@@ -51,19 +43,12 @@
 
 \begin{enumerate}
 \item 同梱されているスタイルファイル群を、それぞれ\LaTeXe および\BibTeX が見つけられる場所に置く （タイプセットする.texファイルと同じ場所でもうまくいくようです）
-\item .texファイルのプリアンブルに\verb| \usepackage{nissya_bib} |という行を加える
+\item *.texファイルのプリアンブルに\verb| \usepackage{nissya_bib} |という行を加える
 \item 本文中で、\verb|\citep \citet \citeyear \nocite|などのコマンドを用いて引用、参照を行う
 \item 文書の末尾（文献リストを出力したい場所）に、\verb|\bibliography{my.bib}|コマンドを加える （「my.bib」の部分はお使いの文献DBファイル名に変更してください）
 \end{enumerate}
 
-\subsection{スタイルオプション: long}
-
-何も指定をせずに本スタイルファイルを用いると、外国人著者名を出力する際、ファーストネームとミドルネームは、そのイニシャルのみが出力されます。例えば、文献データベースには「Claude Serge Fischer」と入力されていても、「C. S. Fischer」あるいは「Fischer, C. S」と出力されます。
-このような省略を行いたくない場合は、次のように「long」オプション使用してください。\\
-　　\verb| \usepackage[long]{nissya_bib} |\\
-このオプションを用いることで、データベースに入力されている通りの著者名が出力されま
-す\footnote{『社会学評論』はイニシャルのみにするか、省略せずに記述するかを論文内で統一するよう要求しています。よって、「long」オプションを用いる場合、すべての外国人著者名が、イニシャルではなく、省略されていない形で文献データベースに入力されていることを確認してください。}\footnote{後述するように、「データベースに入力されている通り」といっても、出力場所に応じてファーストネームを先にしたり、ファミリーネームを先にしたり、あるいはファーストネーム・ミドルネームをイニシャルにしたりといった変形が行われます。}。
-なお、以下の解説で示す出力例は、全て、このオプションが用いられていない場合のものです。
+文献注（citation）のカッコを全角で出力したい場合は、プリアンブルで\verb| \usepackage{nissya_bib} |としたあとに、\verb| \usepackage{nissya_bib_z} |を加えて下さい。本スタイルファイルを用いると外国人著者名を出力する際、ファーストネームとミドルネームは、そのイニシャルのみが出力されます。
 
 \subsection{引用・参照コマンド}
 
@@ -74,7 +59,7 @@
 \subsubsection{著者名(出版年)}
 著者名(出版年)の形、すなわち本文中に著者名を挙げる形で引用・参照する場合は、\verb|\citet{}|コマンドを使います（表\ref{citet}）。
 このコマンドは、初回の引用・参照では著者のフルネームを出力し、2回目以降は姓だけを出力します。
-なお、\verb|\citet{}|コマンドが外国人著者のフルネームを出力する場合、ファーストネーム、ミドルネーム、ラストネームの順で著者名が出力されます。
+なお、\verb|\citet{}|コマンドが外国人著者のフルネームを出力する場合、ファーストネームとミドルネームのイニシャル、ラストネームの順で著者名が出力されます。
 これらの挙動は、『社会学評論』の規定に沿った引用・参照を行うためのものです。
 
 なお、2回目以降でも強制的にフルネームを出力したい場合は、アスタリスクをつけてこのコマンドを用いてください（\verb|\citet*{}|）。
@@ -88,8 +73,8 @@
 \em コメント & \em 入力 & \em 出力\\ \hline
 一回目(洋) & \verb|\citet{gms1}| & \citet{gms1} \\
 二回目以降(洋) & \verb|\citet{gms1}| & \citet{gms1} \\
-一回目(和) & \verb|\citet{hgc1}| & \citet{hgc1} \\
-二回目以降(和) & \verb|\citet{hgc1}| & \citet{hgc1} \\
+一回目(和) & \verb|\citet{higuchi2020}| & \citet{higuchi2020} \\
+二回目以降(和) & \verb|\citet{higuchi2020}| & \citet{higuchi2020} \\
 %著者2名 &\verb|\citet{kawabata_higuchi2003}| & \citet{kawabata_higuchi2003} \\
 %著者3名以上 & \verb|\citet{naoi_sugano_iwabuti2003}| & \citet{naoi_sugano_iwabuti2003} \\
 フルネームを強制 & \verb|\citet*{gms1}| & \citet*{gms1} \\
@@ -104,7 +89,7 @@
 (著者名 出版年)の形、すなわち著者名を文献注に入れる形で引用・参照する場合は、\verb|\citep{}|コマンドを用いてください（表\ref{citep}）。
 このコマンドでは常に著者の姓だけが出力されます。
 同姓の著者がいる場合などで、フルネームを出力したい場合は、アスタリスクをつけてこのコマンドを用いてください（\verb|\citep*{}|）。
-なお、\verb|\citep{}|コマンドが外国人著者のフルネームを出力する場合は、『社会学評論』の規定に従って、常にファミリーネーム，イニシャルという出力になります\footnote{「long」オプションを用いていた場合でも同様の出力になります。}。
+なお、\verb|\citep{}|コマンドが外国人著者のフルネームを出力する場合は、『社会学評論』の規定に従って、常にファミリーネーム，イニシャルという出力になります。
 
 \begin{table}[htb]
 \caption{ (著者名 出版年)形式： citepコマンド}
@@ -112,14 +97,14 @@
 \begin{center}
 \begin{tabular}{lll} \hline
 \em コメント & \em 入力 & \em 出力\\ \hline
-著者1名の場合 & \verb|\citep{hgc1}| & \citep{hgc1} \\
+著者1名の場合 & \verb|\citep{higuchi2020}| & \citep{higuchi2020} \\
 著者2名の場合 & \verb|\citep{kh2003}| & \citep{kh2003} \\
 著者3名以上の場合 & \verb|\citep{nsi2003}| & \citep{nsi2003} \\
 編書の場合 & \verb|\citep{kwbt99}| & \citep{kwbt99} \\
 フルネームを強制（洋） & \verb|\citep*{gms1}| & \citep*{gms1} \\
-フルネームを強制（和） & \verb|\citep*{hgc1}| & \citep*{hgc1} \\
+フルネームを強制（和） & \verb|\citep*{higuchi2020}| & \citep*{higuchi2020} \\
 ページ数つき & \verb|\citep[42-3]{cmcjdb44}| & \citep[42-3]{cmcjdb44} \\
-列挙 & \verb|\citep{kwbt1,hgc1,hgc3}| & \citep{kwbt1,hgc1,hgc3} \\
+列挙 & \verb|\citep{kwbt1,hgc3,higuchi2020}| & \citep{kwbt1,hgc3,higuchi2020} \\
 \hline
 \end{tabular}
 \end{center}
@@ -176,6 +161,8 @@
 
 
 \subsection{更新履歴}
+
+2022年4月に\citet{higuchi2020}で使用したバージョンに更新しました。修正した点は多数あるため、詳細はgithubにてdiffをご覧ください。
 
 2009 04/20に公開の版では以下の点を修正しました。
 \begin{itemize}
